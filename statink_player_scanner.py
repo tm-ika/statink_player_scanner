@@ -4,7 +4,7 @@ import sys
 
 account = "@YOUR_STATINK_ACCOUNT"
 name_list = ["hoge","fuga","ほげ","ふが"]
-ignore_list = []
+ignore_list = ["foo","bar","フー","バー"]
 main_url = "https://stat.ink"
 
 
@@ -31,29 +31,38 @@ def scan_name(name_list, sub_url):
 
         soup = BeautifulSoup(res.text, "html.parser")
         a = soup.find("a" , class_="btn btn-default")
+        
+        tds = soup.select("td.col-name > div > span > a")
+        tds = tds + soup.select("td.col-name > div > span > span")
 
-        trs = soup.find_all("td", class_="col-name")
-        players=[]
-        for player in trs:
-            players.append(player.text.strip())
-
-        for name in name_list:
-            for player in players: # 部分一致
-                if name in player:
-                    if not player in ignore_list:
-                        print(i, name, ">", player, url)
-                        rep = input("[?] 探しているのはこの人？[Y:終了, N:除外リスト入り, S:skip]：")
-                        if rep == "Y" or rep == "y":
-                           print("[+] 終了")
-                           sys.exit()
-                        elif rep == "N" or rep == "n":
-                           ignore_list.append(player)
-                           print("[+] 除外リストに追加", ignore_list)
-                        elif rep == "S" or rep == "s":
-                           print("[+] Skip")
-               
-            # if name in players: # 完全一致
-            #     print(i, name, ">",player, url)
+        players_temp=[]
+        for player in tds:
+            try:
+                player_dict={"name":"","id":"","url":""}
+                player_dict["name"] = player.get_text().strip()
+                player_dict["id"] = player.find("img", alt="").get("title")
+                player_dict["url"] = main_url + "/" + account + "/spl2?filter%5Bfilter%5D=with%3A" + player_dict["id"].replace("ID: ","")
+                if len(player_dict["name"]) > 0 :
+                    # print(i, player.get_text().strip())
+                    players_temp.append(player_dict)
+            except:
+                pass
+            
+        for player in players_temp: # 部分一致
+            for name in name_list:
+                if name in player["name"] and not player["name"] in ignore_list:
+                    print(i, name, ">", player["name"], url)
+                    rep = input("[?] 探しているのはこの人？[Y:終了,N:除外リスト入り,S:skip]：")
+                    if rep == "Y" or rep == "y":
+                       print("[+] 終了")
+                       print("\t", player["name"])
+                       print("\t", player["url"])
+                       sys.exit()
+                    elif rep == "N" or rep == "n":
+                       ignore_list.append(player["name"])
+                       print("[+] 除外リストに追加",ignore_list)
+                    elif rep == "S" or rep == "s":
+                       print("[+] Skip")
 
         if i% 100 == 0:
             print("*", end="")
