@@ -52,7 +52,7 @@ def scan_name(name_list, sub_url):
             for name in name_list:
                 if name in player["name"] and not player["name"] in ignore_list:
                     print(i, name, ">", player["name"], url)
-                    rep = input("[?] 探しているのはこの人？[Y:終了,N:除外リスト入り,S:skip]：")
+                    rep = input("\n[?] 探しているのはこの人？[Y:終了,N:除外リスト入り,S:skip]：")
                     if rep == "Y" or rep == "y":
                        print("[+] 終了")
                        print("\t", player["name"])
@@ -60,7 +60,7 @@ def scan_name(name_list, sub_url):
                        sys.exit()
                     elif rep == "N" or rep == "n":
                        ignore_list.append(player["name"])
-                       print("[+] 除外リストに追加",ignore_list)
+                       print("[+] 除外リストに追加\n",ignore_list)
                     elif rep == "S" or rep == "s":
                        print("[+] Skip")
 
